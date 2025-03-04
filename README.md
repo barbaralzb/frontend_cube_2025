@@ -1,6 +1,6 @@
 # Installation et Exécution du Projet
 ## Prérequis
-Assurez-vous d'avoir `npm` et `npmp` installés sur votre machine.
+Assurez-vous d'avoir `npm` et `pnpm` installés sur votre machine.
 ## Installation
 Exécutez la commande suivante pour installer les dépendances :
 pnpm i

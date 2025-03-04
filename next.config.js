@@ -16,7 +16,7 @@ module.exports = {
     remotePatterns: [
       {
          // protocol: "http",
-        hostname: 'localhost',
+        hostname: 'http://13.36.176.61',
         port: '',
       },
     ],

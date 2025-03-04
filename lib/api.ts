@@ -1,23 +1,33 @@
-const BASE_URL =`${process.env.DB}/products`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_DB}/products`;
+const API_KEY = process.env.NEXT_PUBLIC_SECRET_KEY as string; // Asegurar que no sea undefined
 
-export async function getProductSlugs() {
+async function fetchWithAuth<T>(url: string): Promise<T> {
+  if (!API_KEY) throw new Error("API_KEY is not defined");
+
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    "X-API-Key": API_KEY,
+  };
+
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
+
+  return response.json();
+}
+
+export async function getProductSlugs(): Promise<any[]> {
   try {
-    const response = await fetch(BASE_URL);
-    if (!response.ok) throw new Error("Failed to fetch products");
-    const products = await response.json();
-
-    return products
+    return await fetchWithAuth<any[]>(BASE_URL);
   } catch (error) {
     console.error("Error fetching product slugs:", error);
     return [];
   }
 }
 
-export async function getProduct(id) {
+export async function getProduct(id: string): Promise<any | null> {
   try {
-    const response = await fetch(`${BASE_URL}/${id}`);
-    if (!response.ok) throw new Error("Failed to fetch product");
-    return await response.json();
+    return await fetchWithAuth<any>(`${BASE_URL}/${id}`);
   } catch (error) {
     console.error(`Error fetching product ${id}:`, error);
     return null;

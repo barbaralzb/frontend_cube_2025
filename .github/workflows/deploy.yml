@@ -1,0 +1,30 @@
+name: Deploy Next.js to AWS EC2
+
+on:
+  push:
+    branches:
+      - main  # Puedes cambiarlo al branch que uses para producción
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup SSH and Deploy
+        run: |
+          echo "${{ secrets.AWS_RSA_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@ec2-13-36-176-61.eu-west-3.compute.amazonaws.com << 'EOF'
+            cd /home/ubuntu/app || mkdir /home/ubuntu/app && cd /home/ubuntu/app
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart nextjs || pm2 start npm --name "nextjs" -- start
+          EOF
+
+      - name: Cleanup private key
+        run: rm -f private_key.pem

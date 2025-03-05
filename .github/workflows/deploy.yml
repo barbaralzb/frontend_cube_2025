@@ -23,7 +23,8 @@ jobs:
 
       - name: Run Ansible Playbook (Skip Host Key Verification)
         run: |
-          ansible-playbook -i inventory.ini playbook.yml --private-key private_key.pem -e ansible_ssh_extra_args="-o StrictHostKeyChecking=no"
+          export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no"
+          ansible-playbook -i inventory.ini playbook.yml --private-key private_key.pem
 
       - name: Cleanup SSH Key
         run: rm -f private_key.pem

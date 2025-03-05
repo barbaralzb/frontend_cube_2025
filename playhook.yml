@@ -1,0 +1,81 @@
+- name: Deploy Next.js App
+  hosts: servers
+  become: true  # Permite usar sudo
+
+  tasks:
+    - name: Update server packages
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - nodejs
+          - npm
+          - nginx
+          - curl
+        state: present
+
+    - name: Install pnpm
+      shell: |
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        pnpm setup
+      args:
+        executable: /bin/bash
+
+    - name: Clone or update repo
+      git:
+        repo: "https://github.com/tu-usuario/tu-repo.git"
+        dest: "/home/ubuntu/app"
+        version: main
+        force: yes
+
+    - name: Install dependencies with pnpm
+      shell: |
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        cd /home/ubuntu/app
+        pnpm install --frozen-lockfile
+
+    - name: Build the Next.js app
+      shell: |
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        cd /home/ubuntu/app
+        pnpm build
+
+    - name: Install PM2 globally
+      shell: npm install -g pm2
+
+    - name: Start Next.js app with PM2
+      shell: |
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        pm2 delete frontend-app || true
+        pm2 start "pnpm start" --name "frontend-app"
+        pm2 save
+        pm2 startup | bash
+
+    - name: Configure Nginx
+      copy:
+        dest: "/etc/nginx/sites-available/default"
+        content: |
+          server {
+              listen 80;
+              server_name tu-dominio.com www.tu-dominio.com;
+
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+                  proxy_cache_bypass $http_upgrade;
+              }
+          }
+      notify:
+        - Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted

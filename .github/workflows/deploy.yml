@@ -1,9 +1,9 @@
-name: Deploy Next.js to AWS EC2
+name: Deploy Next.js to AWS EC2 with Ansible
 
 on:
   push:
     branches:
-      - main  # Puedes cambiarlo al branch que uses para producción
+      - main
 
 jobs:
   deploy:
@@ -13,18 +13,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup SSH and Deploy
+      - name: Install Ansible
+        run: sudo apt update && sudo apt install -y ansible
+
+      - name: Setup SSH Key
         run: |
           echo "${{ secrets.AWS_RSA_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@ec2-13-36-176-61.eu-west-3.compute.amazonaws.com << 'EOF'
-            cd /home/ubuntu/app || mkdir /home/ubuntu/app && cd /home/ubuntu/app
-            git pull origin main
-            pnpm install
-            pnpm build
-            pm2 restart nextjs || pm2 start npm --name "nextjs" -- start
-          EOF
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i inventory.ini playbook.yml --private-key private_key.pem
 
-      - name: Cleanup private key
+      - name: Cleanup SSH Key
         run: rm -f private_key.pem

@@ -26,7 +26,7 @@
 
     - name: Clone or update repo
       git:
-        repo: "https://github.com/tu-usuario/tu-repo.git"
+        repo: "https://github.com/barbaralzb/frontend_cube_2025.git"
         dest: "/home/ubuntu/app"
         version: main
         force: yes
@@ -60,7 +60,7 @@
         content: |
           server {
               listen 80;
-              server_name tu-dominio.com www.tu-dominio.com;
+              server_name 13.36.176.61;
 
               location / {
                   proxy_pass http://localhost:3000;

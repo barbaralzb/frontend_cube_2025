@@ -1,77 +1,66 @@
 - name: Deploy Next.js App
-  hosts: ec2-instance
-  become: yes
+  hosts: servers
+  become: true  # Permite usar sudo
+
   tasks:
-    
-    # Actualizar los paquetes del sistema
     - name: Update server packages
       apt:
         update_cache: yes
-        cache_valid_time: 3600
 
-    - name: Upgrade all installed packages to latest versions
-      apt:
-        upgrade: dist
-        state: latest
-
-    # Instalar dependencias de Node.js necesarias
-    - name: Install missing Node.js dependencies
+    - name: Install required packages
       apt:
         name:
-          - node-agent-base
-          - node-archy
-          - node-cacache
-          - node-chalk
-          - node-cli-table3
-          - node-columnify
-          - node-cssesc
-          - node-debug
-          - node-emoji-regex
-          - node-gyp
-          - node-http-proxy-agent
-          - node-https-proxy-agent
-          - node-mkdirp
-          - node-ms
-          - node-nopt
-          - node-normalize-package-data
-          - node-npm-bundled
-          - node-npm-normalize-package-bin
-          - node-npm-package-arg
-          - node-npmlog
-          - node-postcss-selector-parser
-          - node-read-package-json
-          - node-rimraf
-          - node-semver
-          - node-string-width
-          - node-strip-ansi
-          - node-tar
-          - node-validate-npm-package-name
-          - node-which
+          - nodejs
+          - npm
+          - nginx
+          - curl
         state: present
 
-    # Instalar NVM y usarlo para instalar Node.js y npm
-    - name: Install NVM (Node Version Manager)
+    - name: Install pnpm
       shell: |
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-        source ~/.bashrc
-        nvm install 18
-        nvm use 18
-        npm install -g npm@9.2.0
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        pnpm setup
+      args:
+        executable: /bin/bash
 
-    # Instalar nginx
-    - name: Install nginx
-      apt:
-        name: nginx
-        state: present
+    - name: Clone or update repo
+      git:
+        repo: "https://github.com/barbaralzb/frontend_cube_2025.git"
+        dest: "/home/ubuntu/app"
+        version: main
+        force: yes
 
-    # Configurar nginx
+    - name: Install dependencies with pnpm
+      shell: |
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        cd /home/ubuntu/app
+        pnpm install --frozen-lockfile
+
+    - name: Build the Next.js app
+      shell: |
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        cd /home/ubuntu/app
+        pnpm build
+
+    - name: Install PM2 globally
+      shell: npm install -g pm2
+
+    - name: Start Next.js app with PM2
+      shell: |
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        pm2 delete frontend-app || true
+        pm2 start "pnpm start" --name "frontend-app"
+        pm2 save
+        pm2 startup | bash
+
     - name: Configure Nginx
       copy:
         dest: "/etc/nginx/sites-available/default"
         content: |
           server {
-              listen 80;
-              server_name _;
+              listen 20;
+              server_name 13.36.176.61;
 
               location / {
                   proxy_pass http://localhost:3000;
@@ -85,15 +74,8 @@
       notify:
         - Restart Nginx
 
-    # Reiniciar Nginx
+  handlers:
     - name: Restart Nginx
       service:
         name: nginx
         state: restarted
-
-    # Verificar las versiones de Node.js y npm
-    - name: Check installed Node.js version
-      shell: node -v
-
-    - name: Check installed npm version
-      shell: npm -v

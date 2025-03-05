@@ -59,7 +59,7 @@
         dest: "/etc/nginx/sites-available/default"
         content: |
           server {
-              listen 20;
+              listen 8080:8080;
               server_name 13.36.176.61;
 
               location / {

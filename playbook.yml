@@ -71,4 +71,37 @@
     - name: Install PM2 globally
       shell: npm install -g pm2
 
-    - name: Start Next.js app wi
+    - name: Start Next.js app with PM2
+      shell: |
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        pm2 delete frontend-app || true
+        cd /home/ubuntu/app/frontend_cube_2025
+        pm2 start "pnpm start" --name "frontend-app"
+        pm2 save
+        sudo $(pm2 startup | tail -n 1)
+
+    - name: Configure Nginx
+      copy:
+        dest: "/etc/nginx/sites-available/default"
+        content: |
+          server {
+              listen 8080;
+              server_name 15.237.116.116;
+
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+                  proxy_cache_bypass $http_upgrade;
+              }
+          }
+      notify:
+        - Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted

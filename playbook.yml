@@ -15,14 +15,19 @@
           - nginx
           - curl
         state: present
-
+    # - name: Install pnpm
+    #   shell: |
+    #     curl -fsSL https://get.pnpm.io/install.sh | sh -
+    #     export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+    #     corepack enable
+    #   args:
+    #     executable: /bin/bash
     - name: Install pnpm
-      shell: |
+      shell: bash
+      run: |
         curl -fsSL https://get.pnpm.io/install.sh | sh -
-        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        echo "PATH=$HOME/.local/share/pnpm:$PATH" >> $GITHUB_ENV
         corepack enable
-      args:
-        executable: /bin/bash
 
     - name: Clone or update repo
       git:

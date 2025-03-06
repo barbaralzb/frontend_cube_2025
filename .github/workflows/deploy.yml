@@ -25,7 +25,7 @@ jobs:
         run: |
           export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no"
           ansible-playbook -i inventory.ini playbook.yml --private-key private_key.pem
-        working-directory: /home/runner/work/frontend_cube_2025
-        
+        working-directory: /home/ubuntu/app/frontend_cube_2025
+
       - name: Cleanup SSH Key
         run: rm -f private_key.pem

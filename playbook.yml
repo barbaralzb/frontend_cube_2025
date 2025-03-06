@@ -15,19 +15,21 @@
         autoclean: yes
         autoremove: yes
 
-    - name: Install required packages
+    - name: Remove old versions of npm and nodejs
+      apt:
+        name:
+          - npm
+          - nodejs
+        state: absent
+
+    - name: Add Node.js repository
+      shell: curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+
+    - name: Install Node.js and npm
       apt:
         name:
           - nodejs
           - npm
-          - nginx
-          - curl
-        state: present
-
-    - name: Install dependencies for npm
-      apt:
-        name:
-          - node-agent-base
         state: present
 
     - name: Install pnpm

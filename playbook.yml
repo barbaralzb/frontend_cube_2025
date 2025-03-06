@@ -7,6 +7,14 @@
       apt:
         update_cache: yes
 
+    - name: Fix broken packages
+      command: apt-get install -f -y
+
+    - name: Clean apt cache
+      apt:
+        autoclean: yes
+        autoremove: yes
+
     - name: Install required packages
       apt:
         name:
@@ -15,7 +23,13 @@
           - nginx
           - curl
         state: present
-        
+
+    - name: Install dependencies for npm
+      apt:
+        name:
+          - node-agent-base
+        state: present
+
     - name: Install pnpm
       shell: |
         curl -fsSL https://get.pnpm.io/install.sh | sh -
@@ -23,11 +37,11 @@
         corepack enable
       args:
         executable: /bin/bash
-    # - name: Install pnpm
-    #   shell : |
-    #     curl -fsSL https://get.pnpm.io/install.sh | sh -
-    #     echo "PATH=$HOME/.local/share/pnpm:$PATH" >> $GITHUB_ENV
-    #     corepack enable
+
+    - name: Add pnpm to PATH permanently
+      shell: echo 'export PATH="/home/ubuntu/.local/share/pnpm:$PATH"' >> /home/ubuntu/.bashrc
+      args:
+        executable: /bin/bash
 
     - name: Clone or update repo
       git:
@@ -65,7 +79,7 @@
         dest: "/etc/nginx/sites-available/default"
         content: |
           server {
-              listen 22;
+              listen 8080;
               server_name 15.237.116.116;
 
               location / {

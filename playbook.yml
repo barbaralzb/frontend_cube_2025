@@ -17,10 +17,12 @@
         state: present
 
     - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8 # O la versión que necesites
-        run_install: false
+      shell: |
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
+        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        corepack enable
+      args:
+        executable: /bin/bash
 
     - name: Clone or update repo
       git:
@@ -51,7 +53,7 @@
         cd /home/ubuntu/app/frontend_cube_2025
         pm2 start "pnpm start" --name "frontend-app"
         pm2 save
-        pm2 startup | bash
+        sudo $(pm2 startup | tail -n 1)
 
     - name: Configure Nginx
       copy:

@@ -66,10 +66,9 @@
     - name: Git pull if repository exists
       git:
         repo: 'https://github.com/barbaralzb/frontend_cube_2025.git'
-        dest: /home/ubuntu/app/frontend_cube_2025
+        dest: /home/ubuntu/app
         update: yes
         version: main  # O la rama que desees
-        force: yes
       when: repo_stat.stat.exists == True
 
     - name: Install dependencies with pnpm

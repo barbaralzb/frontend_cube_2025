@@ -15,9 +15,11 @@
         autoclean: yes
         autoremove: yes
 
-    - name: Remove old versions of nodejs
+    - name: Remove old versions of nodejs and npm
       apt:
-        name: nodejs
+        name:
+          - nodejs
+          - npm
         state: absent
 
     - name: Add Node.js repository
@@ -29,12 +31,11 @@
           - nodejs
         state: present
 
-    - name: Install npm (if necessary)
-      apt:
-        name:
-          - npm
-        state: present
-      when: ansible_facts.packages.nodejs is not defined
+    - name: Install npm using n package manager
+      shell: |
+        curl -L https://www.npmjs.com/install.sh | sh
+      args:
+        executable: /bin/bash
 
     - name: Install pnpm
       shell: |

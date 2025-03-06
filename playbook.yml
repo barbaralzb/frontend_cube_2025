@@ -32,7 +32,7 @@
     - name: Clone or update repo
       git:
         repo: "https://github.com/barbaralzb/frontend_cube_2025.git"
-        dest: "/home/ubuntu/app/frontend_cube_2025"
+        dest: "/home/ubuntu/app"
         version: main
         force: yes
 

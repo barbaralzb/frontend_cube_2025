@@ -17,13 +17,10 @@
         state: present
 
     - name: Install pnpm
-      shell: |
-        curl -fsSL https://get.pnpm.io/install.sh | sh -
-        echo 'export PATH="$HOME/.local/share/pnpm:$PATH"' >> ~/.bashrc
-        source ~/.bashrc
-        pnpm setup
-      args:
-        executable: /bin/bash
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8 # O la versión que necesites
+        run_install: false
 
     - name: Clone or update repo
       git:

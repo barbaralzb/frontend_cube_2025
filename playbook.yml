@@ -55,7 +55,6 @@
         repo: "https://github.com/barbaralzb/frontend_cube_2025.git"
         dest: "/home/ubuntu/app"
         version: main
-        force: yes  # Esto fuerza la actualización del repositorio si ya 
         update: yes
 
     - name: Install dependencies with pnpm

@@ -19,7 +19,8 @@
     - name: Install pnpm
       shell: |
         curl -fsSL https://get.pnpm.io/install.sh | sh -
-        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
+        echo 'export PATH="$HOME/.local/share/pnpm:$PATH"' >> ~/.bashrc
+        source ~/.bashrc
         pnpm setup
       args:
         executable: /bin/bash
@@ -27,20 +28,20 @@
     - name: Clone or update repo
       git:
         repo: "https://github.com/barbaralzb/frontend_cube_2025.git"
-        dest: "/home/ubuntu/app"
+        dest: "/home/ubuntu/app/frontend_cube_2025"
         version: main
         force: yes
 
     - name: Install dependencies with pnpm
       shell: |
         export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
-        cd /home/ubuntu/app
+        cd /home/ubuntu/app/frontend_cube_2025
         pnpm install --frozen-lockfile
 
     - name: Build the Next.js app
       shell: |
         export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
-        cd /home/ubuntu/app
+        cd /home/ubuntu/app/frontend_cube_2025
         pnpm build
 
     - name: Install PM2 globally
@@ -50,6 +51,7 @@
       shell: |
         export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
         pm2 delete frontend-app || true
+        cd /home/ubuntu/app/frontend_cube_2025
         pm2 start "pnpm start" --name "frontend-app"
         pm2 save
         pm2 startup | bash
@@ -59,7 +61,7 @@
         dest: "/etc/nginx/sites-available/default"
         content: |
           server {
-              listen 8080:8080;
+              listen 8080;
               server_name 13.36.176.61;
 
               location / {

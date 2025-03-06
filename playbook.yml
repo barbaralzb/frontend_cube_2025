@@ -56,6 +56,7 @@
         dest: "/home/ubuntu/app"
         version: main
         update: yes
+        force : no
 
     - name: Install dependencies with pnpm
       shell: |

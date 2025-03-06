@@ -63,13 +63,7 @@
         force: yes
       when: repo_stat.stat.exists == False
 
-    - name: Git pull if repository exists
-      git:
-        repo: 'https://github.com/barbaralzb/frontend_cube_2025.git'
-        dest: /home/ubuntu/app
-        update: yes
-        version: main  # O la rama que desees
-      when: repo_stat.stat.exists == True
+      ## git pull
 
     - name: Install dependencies with pnpm
       shell: |

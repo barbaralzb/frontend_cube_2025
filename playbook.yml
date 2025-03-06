@@ -55,7 +55,15 @@
         repo: "https://github.com/barbaralzb/frontend_cube_2025.git"
         dest: "/home/ubuntu/app"
         version: main
-        force: yes  # Esto fuerza la actualización del repositorio si ya existe
+        force: yes  # Esto fuerza la actualización del repositorio si ya 
+
+    - name: Git pull to update the repository
+      git:
+        repo: "https://github.com/barbaralzb/frontend_cube_2025.git"
+        dest: "/home/ubuntu/app"
+        version: main  # ou la branche que tu veux
+        force: yes
+        update: yes
 
     - name: Install dependencies with pnpm
       shell: |

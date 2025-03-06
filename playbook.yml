@@ -76,7 +76,7 @@
       shell: |
         export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
         cd /home/ubuntu/app/frontend_cube_2025
-        pnpm install --frozen-lockfile
+        pnpm i
 
     - name: Build the Next.js app
       shell: |

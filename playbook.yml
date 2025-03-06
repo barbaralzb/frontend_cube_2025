@@ -50,13 +50,26 @@
       args:
         executable: /bin/bash
 
-    - name: Clone or update repo
+    - name: Check if the repository exists
+      stat:
+        path: /home/ubuntu/app/frontend_cube_2025/.git  # Verifica si el directorio .git existe dentro del repo
+      register: repo_stat
+
+    - name: Git clone if repository does not exist
       git:
-        repo: "https://github.com/barbaralzb/frontend_cube_2025.git"
-        dest: "/home/ubuntu/app"
-        version: main
+        repo: 'https://github.com/barbaralzb/frontend_cube_2025.git'
+        dest: /home/ubuntu/app
+        version: main  # O la rama que desees
+        force: yes
+      when: repo_stat.stat.exists == False
+
+    - name: Git pull if repository exists
+      git:
+        repo: 'https://github.com/barbaralzb/frontend_cube_2025.git'
+        dest: /home/ubuntu/app/frontend_cube_2025
         update: yes
-        force : no
+        version: main  # O la rama que desees
+      when: repo_stat.stat.exists == True
 
     - name: Install dependencies with pnpm
       shell: |

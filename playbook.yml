@@ -15,22 +15,26 @@
         autoclean: yes
         autoremove: yes
 
-    - name: Remove old versions of npm and nodejs
+    - name: Remove old versions of nodejs
       apt:
-        name:
-          - npm
-          - nodejs
+        name: nodejs
         state: absent
 
     - name: Add Node.js repository
       shell: curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 
-    - name: Install Node.js and npm
+    - name: Install Node.js
       apt:
         name:
           - nodejs
+        state: present
+
+    - name: Install npm (if necessary)
+      apt:
+        name:
           - npm
         state: present
+      when: ansible_facts.packages.nodejs is not defined
 
     - name: Install pnpm
       shell: |
@@ -67,37 +71,4 @@
     - name: Install PM2 globally
       shell: npm install -g pm2
 
-    - name: Start Next.js app with PM2
-      shell: |
-        export PATH="/home/ubuntu/.local/share/pnpm:$PATH"
-        pm2 delete frontend-app || true
-        cd /home/ubuntu/app/frontend_cube_2025
-        pm2 start "pnpm start" --name "frontend-app"
-        pm2 save
-        sudo $(pm2 startup | tail -n 1)
-
-    - name: Configure Nginx
-      copy:
-        dest: "/etc/nginx/sites-available/default"
-        content: |
-          server {
-              listen 8080;
-              server_name 15.237.116.116;
-
-              location / {
-                  proxy_pass http://localhost:3000;
-                  proxy_http_version 1.1;
-                  proxy_set_header Upgrade $http_upgrade;
-                  proxy_set_header Connection 'upgrade';
-                  proxy_set_header Host $host;
-                  proxy_cache_bypass $http_upgrade;
-              }
-          }
-      notify:
-        - Restart Nginx
-
-  handlers:
-    - name: Restart Nginx
-      service:
-        name: nginx
-        state: restarted
+    - name: Start Next.js app wi

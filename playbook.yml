@@ -64,8 +64,8 @@
         dest: "/etc/nginx/sites-available/default"
         content: |
           server {
-              listen 8080;
-              server_name 13.36.176.61;
+              listen 22;
+              server_name 15.237.116.116;
 
               location / {
                   proxy_pass http://localhost:3000;

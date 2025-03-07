@@ -7,7 +7,7 @@ function ProductCard({ product }) {
   const title = product.title
   const description = product.description
   const price = product.variants.edges[0].node.price
-
+  const stock = product.stock
   const imageNode = product.images.edges[0].node
 
   return (
@@ -31,6 +31,9 @@ function ProductCard({ product }) {
           </div>
           <div className="text-lg text-gray-600 p-4 font-primary font-light">
             {description}
+          </div>
+          <div className="text-lg text-gray-600 p-4 font-primary font-light">
+            {stock}
           </div>
           <div
             className="text-palette-dark font-primary font-medium text-base absolute bottom-0 right-0 mb-4 pl-8 pr-4 pb-1 pt-2 bg-palette-lighter 
